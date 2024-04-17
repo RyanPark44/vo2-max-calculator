@@ -63,5 +63,15 @@ export async function fetchAthleteActivities(accessToken: string, page: number =
     }
   });
   return await res.json();
-
 }
+
+export async function fetchActivityStream(accessToken: string, activityId: number) {
+  const res = await fetch(`https://www.strava.com/api/v3/activities/${activityId}/streams?keys=heartrate,time&key_by_type=true`, {
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+  return await res.json();
+}
+

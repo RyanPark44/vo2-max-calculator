@@ -3,10 +3,6 @@ import { getSession, fetchAthleteActivities } from "@/lib";
 import { redirect } from "next/navigation";
 import ActivityCard from "@/components/ActivityCard";
 
-const Greeting = () => {
-    return <h1>Welcome</h1>;
-};
-
 const page = async () => {
     try {
         const session = await getSession();
@@ -15,11 +11,12 @@ const page = async () => {
         if (activities.errors != null) throw new Error(activities.message);
         return (
             <>
-                {Greeting()}
+                <h1 className="text-2xl font-bold">Your Last 10 Activities</h1>
                 {activities.map((activity: any) => {
                     return (
                         <ActivityCard
                             key={activity.id}
+                            id={activity.id}
                             title={activity.name}
                             date={activity.start_date_local}
                             duration={activity.elapsed_time}

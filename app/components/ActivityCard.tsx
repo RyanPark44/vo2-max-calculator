@@ -1,15 +1,15 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 interface ActivityCardProps {
+  key: number;
+  id: number;
   title: string;
   date: string;
   duration: number;
   distance: number;
 }
-const handleClick = () => {
-  console.log("clicked");
-};
 const dateOptions: {} = {
   weekday: "long",
   year: "numeric",
@@ -17,6 +17,15 @@ const dateOptions: {} = {
   day: "numeric",
 };
 const ActivityCard = (activityData: ActivityCardProps) => {
+  // Router hook to navigate to activity page
+  const router = useRouter();
+
+  // Handle click event to navigate to activity page
+  const handleClick = (event: any) => {
+    const activityId = event.target.closest(".card").dataset.id
+    router.push(`./activity/${activityId}`);
+  };
+  // Format date, duration, and distance
   const date = new Date(activityData.date).toLocaleDateString(
     "en-us",
     dateOptions,
@@ -25,9 +34,11 @@ const ActivityCard = (activityData: ActivityCardProps) => {
   const minutes = Math.floor(activityData.duration / 60 - hours * 60);
   const seconds = Math.floor(activityData.duration % 60);
   const distance = (activityData.distance / 1000).toFixed(2); // convert meters to kilometers
+
   return (
     <div
       className="card w-1/3 m-5 bg-sky-400 text-primary-content hover:bg-sky-500"
+      data-id={activityData.id}
       onClick={handleClick}
     >
       <div className="card-body">
