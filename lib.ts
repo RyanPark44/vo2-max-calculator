@@ -2,6 +2,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+//////////////////////////////////////////////////
+// Cookie Encryption and Decryption Melthods
 const secretKey = "secret";
 const key = new TextEncoder().encode(secretKey);
 
@@ -51,3 +53,25 @@ export async function updateSession(request: NextRequest) {
   });
   return res;
 }
+//////////////////////////////////////////////////
+// Strava API Fetch Methods
+export async function fetchAthleteActivities(accessToken: string, page: number = 1) {
+  const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=10`, {
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+  return await res.json();
+}
+
+export async function fetchActivityStream(accessToken: string, activityId: number) {
+  const res = await fetch(`https://www.strava.com/api/v3/activities/${activityId}/streams?keys=heartrate,time&key_by_type=true`, {
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+  return await res.json();
+}
+

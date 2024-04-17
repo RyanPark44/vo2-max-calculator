@@ -33,5 +33,5 @@ export const GET = async (req: Request) => {
     const token_data = await token_response.json();
     console.log("token_data", token_data);
     await login(token_data);
-    redirect(`/user/${token_data.athlete.id}?first_name=${token_data.athlete.firstname}`);
+    redirect(`/user/${token_data.athlete.id}`);
 }
