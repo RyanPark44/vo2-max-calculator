@@ -75,3 +75,21 @@ export async function fetchActivityStream(accessToken: string, activityId: numbe
   return await res.json();
 }
 
+//////////////////////////////////////////////////
+// Vo2 Max Calculation Methods
+export function highestAverageHeartRate(heartRateData: number[], windowSizeMinutes: number = 30) {
+  if (heartRateData.length <= 0 || windowSizeMinutes <= 0) return 0;
+  windowSizeMinutes *= 60; // Convert to seconds
+
+  // Calculate the initial window sum
+  let windowSum = heartRateData.reduce((acc, val) => {return acc + val}, 0);
+  let maxSum = windowSum;
+
+  // Slide the window and calculate the sum
+  for (let i = windowSizeMinutes; i < heartRateData.length; i++) {
+    windowSum = windowSum - heartRateData[i - windowSizeMinutes] + heartRateData[i];
+    maxSum = Math.max(maxSum, windowSum);
+  }
+
+  return maxSum / windowSizeMinutes;
+}

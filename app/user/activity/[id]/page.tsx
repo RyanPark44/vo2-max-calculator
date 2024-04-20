@@ -1,8 +1,12 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { getSession, fetchActivityStream } from "@/lib";
+import {
+    getSession,
+    fetchActivityStream,
+    highestAverageHeartRate,
+} from "@/lib";
 
-const page = async ( { params }: { params: { id: string } } ) => {
+const page = async ({ params }: { params: { id: string } }) => {
     try {
         // Verify session is active
         const session = await getSession();
@@ -20,8 +24,12 @@ const page = async ( { params }: { params: { id: string } } ) => {
         return (
             <>
                 <h1 className="text-2xl font-bold">{activityData.name}</h1>
-                <h3>Heart Rate</h3>
-                <pre>{JSON.stringify(activityData.heartrate, null, 2)}</pre>
+                <h2>Heart Rate</h2>
+                <p>
+                    Highest 30-minute average heart rate:{" "}
+                    {highestAverageHeartRate(activityData.heartrate.data, 30).toFixed(2)}
+                </p>
+        //<pre>{JSON.stringify(activityData.heartrate, null, 2)}</pre>
             </>
         );
     } catch (error) {

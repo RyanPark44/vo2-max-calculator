@@ -2,6 +2,7 @@ import React from "react";
 import { getSession, fetchAthleteActivities } from "@/lib";
 import { redirect } from "next/navigation";
 import ActivityCard from "@/components/ActivityCard";
+import CardContainer from "@/components/CardContainer";
 
 const page = async () => {
     try {
@@ -12,6 +13,7 @@ const page = async () => {
         return (
             <>
                 <h1 className="text-2xl font-bold">Your Last 10 Activities</h1>
+                <CardContainer />
                 {activities.map((activity: any) => {
                     return (
                         <ActivityCard
