@@ -7,7 +7,9 @@ const stravaUrl = `http://www.strava.com/oauth/authorize?client_id=${process.env
 const page = () => {
   return (
     <>
-      <h1>Welcome to VO2 Max Calculator</h1>
+      
+      
+      <h1 className="text-2xl font-bold">Welcome to VO2 Max Calculator</h1>
       <Link className="btn btn-primary" href={stravaUrl}>
         Login to Strava
       </Link>

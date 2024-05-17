@@ -37,7 +37,7 @@ const ActivityCard = (activityData: ActivityCardProps) => {
 
   return (
     <div
-      className="card w-1/3 m-5 bg-sky-400 text-primary-content hover:bg-sky-500"
+      className="card m-5 bg-sky-400 text-primary-content hover:bg-sky-500"
       data-id={activityData.id}
       onClick={handleClick}
     >

@@ -55,23 +55,82 @@ export async function updateSession(request: NextRequest) {
 }
 //////////////////////////////////////////////////
 // Strava API Fetch Methods
-export async function fetchAthleteActivities(accessToken: string, page: number = 1) {
-  const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=10`, {
-    headers: {
-      accept: "application/json",
-      authorization: `Bearer ${accessToken}`
-    }
-  });
+export async function fetchAthleteActivities(
+  accessToken: string,
+  page: number = 1,
+) {
+  const res = await fetch(
+    `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=10`,
+    {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
   return await res.json();
 }
 
-export async function fetchActivityStream(accessToken: string, activityId: number) {
-  const res = await fetch(`https://www.strava.com/api/v3/activities/${activityId}/streams?keys=heartrate,time&key_by_type=true`, {
-    headers: {
-      accept: "application/json",
-      authorization: `Bearer ${accessToken}`
-    }
-  });
+export async function fetchActivityStream(
+  accessToken: string,
+  activityId: number,
+) {
+  const res = await fetch(
+    `https://www.strava.com/api/v3/activities/${activityId}/streams?keys=distance,heartrate&key_by_type=true`,
+    {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
   return await res.json();
 }
 
+//////////////////////////////////////////////////
+// Vo2 Max Calculation Methods
+export function highestAverageHeartRate(
+  heartRateData: number[],
+  windowSizeMinutes: number = 30,
+) {
+  if (heartRateData.length <= 0 || windowSizeMinutes <= 0) return 0;
+  windowSizeMinutes *= 60; // Convert to seconds
+
+  // Calculate the initial window sum
+  let windowSum = heartRateData.reduce((acc, val) => {
+    return acc + val;
+  }, 0);
+  let maxSum = windowSum;
+
+  // Slide the window and calculate the sum
+  for (let i = windowSizeMinutes; i < heartRateData.length; i++) {
+    windowSum =
+      windowSum - heartRateData[i - windowSizeMinutes] + heartRateData[i];
+    maxSum = Math.max(maxSum, windowSum);
+  }
+
+  return maxSum / windowSizeMinutes;
+}
+
+//////////////////////////////////////////////////
+// Calculate Threshold Pace
+export function calculateThresholdPace(distanceData: number[]) {
+  const windowSize = 1200; // 20 minutes in seconds
+  try {
+    if (distanceData.length <= windowSize)
+      throw new Error("Activity is not long enough to calculate FTP");
+    // initialize the max distance
+    let maxDistance = distanceData[windowSize - 1];
+    // slide the window and calculate the sum
+    let currentDistance = maxDistance;
+    for (let i = 0; i < distanceData.length - windowSize; ++i) {
+      currentDistance = distanceData[i + windowSize] - distanceData[i];
+      maxDistance = Math.max(maxDistance, currentDistance);
+    }
+
+    return 20 / (maxDistance / 1000); // convert to Pace
+  } catch (error) {
+    console.error(error);
+    return -1;
+  }
+}
