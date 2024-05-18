@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import {
     getSession,
     fetchActivityStream,
-    highestAverageHeartRate,
-    calculateThresholdPace,
+    getLTHR,
+    getThresholdPace,
 } from "@/lib";
 
 const page = async ({ params }: { params: { id: string } }) => {
@@ -23,22 +23,26 @@ const page = async ({ params }: { params: { id: string } }) => {
         );
         if (activityData.errors != null) throw new Error(activityData.message);
 
-        const thresholdPace = calculateThresholdPace(activityData.distance.data)
+        const thresholdPace = getThresholdPace(activityData.distance.data);
+        const thresholdPaceMinutes = Math.floor(thresholdPace);
+        const thresholdPaceSeconds = Math.floor((thresholdPace % 1) * 60)
+            .toString()
+            .padStart(2, "0");
+        const lactateThresholdHeartRate = getLTHR(activityData.heartrate.data);
 
         return (
             <>
                 <Navbar />
+                <p>LTHR: {Math.round(lactateThresholdHeartRate)}</p>
                 <p>
-                    Highest 30-minute average heart rate:{" "}
-                    {highestAverageHeartRate(activityData.heartrate.data, 30).toFixed(2)}
+                    Threshold Pace: {thresholdPaceMinutes}:{thresholdPaceSeconds} km
                 </p>
-                <p>Threshold Pace: {Math.floor(thresholdPace)}:{Math.floor(thresholdPace % 1 * 60)}km</p>
-        <pre>{JSON.stringify(activityData.heartrate, null, 2)}</pre>
+                <pre>{JSON.stringify(activityData.heartrate, null, 2)}</pre>
             </>
         );
     } catch (error) {
         console.error(error);
-        return <h1>Error</h1>;
+        return <h1 className="text-error">Error</h1>;
     }
 };
 

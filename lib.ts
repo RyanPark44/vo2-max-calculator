@@ -88,49 +88,44 @@ export async function fetchActivityStream(
 }
 
 //////////////////////////////////////////////////
-// Vo2 Max Calculation Methods
-export function highestAverageHeartRate(
-  heartRateData: number[],
-  windowSizeMinutes: number = 30,
-) {
-  if (heartRateData.length <= 0 || windowSizeMinutes <= 0) return 0;
-  windowSizeMinutes *= 60; // Convert to seconds
+// Physical Performance Calculation Methods
+export function getLTHR(heartrateData: number[]) {
+  const segmentSize = 1200; // 20 minutes in seconds
+  const segmentStart = getFastestSegmentStart(heartrateData, segmentSize);
 
-  // Calculate the initial window sum
-  let windowSum = heartRateData.reduce((acc, val) => {
-    return acc + val;
-  }, 0);
-  let maxSum = windowSum;
-
-  // Slide the window and calculate the sum
-  for (let i = windowSizeMinutes; i < heartRateData.length; i++) {
-    windowSum =
-      windowSum - heartRateData[i - windowSizeMinutes] + heartRateData[i];
-    maxSum = Math.max(maxSum, windowSum);
+  let heartrateSum = 0;
+  for (let i = segmentStart + 1; i <= segmentStart + segmentSize ; ++i) {
+    heartrateSum += heartrateData[i];
   }
-
-  return maxSum / windowSizeMinutes;
+  return heartrateSum / segmentSize;
 }
 
-//////////////////////////////////////////////////
-// Calculate Threshold Pace
-export function calculateThresholdPace(distanceData: number[]) {
-  const windowSize = 1200; // 20 minutes in seconds
+export function getThresholdPace(distanceData: number[]) {
+  const segmentSize = 1200; // 20 minutes in seconds
+  const segmentStart = getFastestSegmentStart(distanceData, segmentSize);
+  const segmentDistance = distanceData[segmentStart + segmentSize] - distanceData[segmentStart]
+  return (segmentSize / 60) / (segmentDistance / 1000)  // convert to Pace min/km
+}
+
+export function getFastestSegmentStart(distanceData: number[], segmentSize: number) {
   try {
-    if (distanceData.length <= windowSize)
-      throw new Error("Activity is not long enough to calculate FTP");
-    // initialize the max distance
-    let maxDistance = distanceData[windowSize - 1];
-    // slide the window and calculate the sum
+    if (distanceData.length <= segmentSize)
+      throw new Error("Activity duration is less the requested segment size.");
+
+    let maxDistance = distanceData[segmentSize - 1];
+    let segmentStart = 0;
     let currentDistance = maxDistance;
-    for (let i = 0; i < distanceData.length - windowSize; ++i) {
-      currentDistance = distanceData[i + windowSize] - distanceData[i];
+
+    for (let i = 0; i < distanceData.length - segmentSize; ++i) {
+      currentDistance = distanceData[i + segmentSize] - distanceData[i];
       maxDistance = Math.max(maxDistance, currentDistance);
+      if (maxDistance === currentDistance) segmentStart = i;
     }
 
-    return 20 / (maxDistance / 1000); // convert to Pace
+    return segmentStart;
   } catch (error) {
     console.error(error);
     return -1;
   }
-}
+
+} 
