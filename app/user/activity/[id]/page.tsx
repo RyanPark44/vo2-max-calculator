@@ -37,7 +37,6 @@ const page = async ({ params }: { params: { id: string } }) => {
                 <p>
                     Threshold Pace: {thresholdPaceMinutes}:{thresholdPaceSeconds} km
                 </p>
-                <pre>{JSON.stringify(activityData.heartrate, null, 2)}</pre>
             </>
         );
     } catch (error) {
